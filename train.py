@@ -53,7 +53,6 @@ def train(
             save_dir=save_path,
             project=project_name,
             log_model=True,
-            entity="chrockey",
             config=hparams,
         )
     ]
