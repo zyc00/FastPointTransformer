@@ -5,7 +5,7 @@ in_channels = 3
 out_channels = 20
 
 # Data module
-ScanNetRGBDataModule.data_root = "/yuchen_fast/scannet_processed" # you need to modify this according to your data.
+ScanNetRGBDataModule.data_root = "/yuchen_fast/scannetv2" # you need to modify this according to your data.
 ScanNetRGBDataModule.train_batch_size = 4
 ScanNetRGBDataModule.val_batch_size = 2
 ScanNetRGBDataModule.train_num_workers = 4
