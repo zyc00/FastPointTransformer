@@ -39,6 +39,14 @@ class BasicBlock(nn.Module):
             dilation=dilation,
             dimension=dimension,
         )
+        self.conv3 = ME.MinkowskiConvolution(
+            planes * 2,
+            planes,
+            kernel_size=1,
+            stride=1,
+            dilation=dilation,
+            dimension=dimension,
+        )
         self.pooltr = ME.MinkowskiPoolingTranspose(
             kernel_size=3, stride=3, dimension=dimension
         )
@@ -55,7 +63,7 @@ class BasicBlock(nn.Module):
         out = self.relu(out)
 
         out = self.conv2(out)
-        out = self.pooltr(out)
+        out = self.conv3(ME.cat(residual, self.pooltr(out)))
         out = self.norm2(out)
 
         if self.downsample is not None:
