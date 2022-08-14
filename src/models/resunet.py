@@ -64,6 +64,7 @@ class BasicBlock(nn.Module):
 
         out = self.conv2(out)
         out = self.conv3(ME.cat(residual, self.pooltr(out)))
+        print(x.coordinates)
         out = self.norm2(out)
 
         if self.downsample is not None:
