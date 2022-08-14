@@ -40,7 +40,7 @@ class BasicBlock(nn.Module):
             dimension=dimension,
         )
         self.conv3 = ME.MinkowskiConvolution(
-            planes * 2,
+            planes + inplanes,
             planes,
             kernel_size=1,
             stride=1,
