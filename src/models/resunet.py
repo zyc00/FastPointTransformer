@@ -40,7 +40,7 @@ class BasicBlock(nn.Module):
             dimension=dimension,
         )
         self.conv3 = ME.MinkowskiConvolution(
-            planes + inplanes,
+            planes + inplanes + 3,
             planes,
             kernel_size=1,
             stride=1,
@@ -63,8 +63,9 @@ class BasicBlock(nn.Module):
         out = self.relu(out)
 
         out = self.conv2(out)
-        out = self.conv3(ME.cat(residual, self.pooltr(out)))
-        print(x.coordinates)
+        out = self.conv3(
+            ME.cat(ME.cat(residual, self.pooltr(out)), x.coordinates[1:] % 3 - 1)
+        )
         out = self.norm2(out)
 
         if self.downsample is not None:
