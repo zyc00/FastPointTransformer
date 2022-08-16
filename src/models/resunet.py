@@ -64,9 +64,11 @@ class BasicBlock(nn.Module):
 
         out = self.conv2(out)
         out = self.pooltr(out)
-        print(out.F.shape)
-        print(out.C.shape)
-        out.features = torch.cat([out.F, x.C[:, 1:] % 3 - 1], dim=1)
+        out = ME.SparseTensor(
+            torch.cat([out.F, out.C[:, 1:] % 3 - 1], dim=1),
+            coordinate_map_key=x.coordinate_key,
+            coordinate_manager=x.coordinate_manager,
+        )
         out = self.conv3(ME.cat(residual, out))
         out = self.norm2(out)
 
