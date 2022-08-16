@@ -63,7 +63,7 @@ class BasicBlock(nn.Module):
         out = self.relu(out)
 
         out = self.conv2(out)
-        out.F = torch.cat([out.F, x.C[:, 1:] % 3 - 1])
+        out.F = torch.cat([out.F, x.C[:, 1:] % 3 - 1], dim=1)
         out = self.conv3(ME.cat(residual, self.pooltr(out)))
         out = self.norm2(out)
 
