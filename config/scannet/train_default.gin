@@ -58,7 +58,7 @@ train.check_val_every_n_epoch = 1
 train.refresh_rate_per_second = 1
 train.best_metric = "val_mIoU"
 train.max_epoch = None
-train.max_step = 100000
+train.max_step = 200000
 
 # Logging
 logged_hparams.keys = [
