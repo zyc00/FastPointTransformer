@@ -45,7 +45,7 @@ def visualize_scannet_label(points, seg_label, color=None):
     )
     # open3d.visualization.draw_geometries([pc, mesh_frame])
     vis = open3d.visualization.Visualizer()
-    vis.create_window()
+    vis.create_window(visible=False)
     vis.add_geometry(pc)
     vis.update_geometry(pc)
     vis.poll_events()
