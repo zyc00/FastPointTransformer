@@ -51,6 +51,6 @@ def visualize_scannet_label(points, seg_label, color=None):
     vis.poll_events()
     vis.update_renderer()
     global count
-    vis.capture_screen_image(f"./vis/{count}.jpg")
+    vis.capture_screen_image(f"./vis/{count}.jpg", do_render=False)
     vis.destroy_window()
     count = count + 1
