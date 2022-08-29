@@ -37,7 +37,7 @@ def visualize_scannet_label(points, seg_label, color=None):
     else:
         color = color.copy()
     color_palette = np.array(SCANNET_COLOR_PALETTE) / 255.0
-    color[seg_label != 255] = color_palette[seg_label[seg_label != 0]]
+    color[seg_label != 255] = color_palette[seg_label[seg_label != 255]]
     pc.colors = open3d.utility.Vector3dVector(color)
 
     mesh_frame = open3d.geometry.TriangleMesh.create_coordinate_frame(
