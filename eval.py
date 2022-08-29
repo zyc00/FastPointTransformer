@@ -1,3 +1,4 @@
+from cProfile import label
 import gc
 import argparse
 
@@ -22,7 +23,7 @@ def print_results(classnames, confusion_matrix):
     accs = confusion_matrix.diagonal() / confusion_matrix.sum(1) * 100
     miou = np.nanmean(ious)
     macc = np.nanmean(accs)
-    
+
     # print results
     console = Console()
     table = Table(show_header=True, header_style="bold")
@@ -44,12 +45,14 @@ def get_rotation_matrices(num_rotations=8):
     rot_matrices = []
     for angle in angles:
         rot_matrices.append(
-            torch.Tensor([
-                [np.cos(angle), -np.sin(angle), 0, 0],
-                [np.sin(angle), np.cos(angle), 0, 0],
-                [0, 0, 1, 0],
-                [0, 0, 0, 1]
-            ])
+            torch.Tensor(
+                [
+                    [np.cos(angle), -np.sin(angle), 0, 0],
+                    [np.sin(angle), np.cos(angle), 0, 0],
+                    [0, 0, 1, 0],
+                    [0, 0, 0, 1],
+                ]
+            )
         )
     return rot_matrices
 
@@ -60,7 +63,7 @@ def infer(model, batch, device):
         features=batch["features"],
         coordinates=batch["coordinates"],
         quantization_mode=model.QMODE,
-        device=device
+        device=device,
     )
     pred = model(in_data).argmax(dim=1).cpu()
     return pred
@@ -74,18 +77,18 @@ def infer_with_rotation_average(model, batch, device):
         batch_, coords_ = torch.split(batch["coordinates"], [1, 3], dim=1)
         coords = T.homogeneous_coords(coords_) @ M
         coords = torch.cat([batch_, coords[:, :3].float()], dim=1)
-        
+
         in_data = ME.TensorField(
             features=batch["features"],
             coordinates=coords,
             quantization_mode=model.QMODE,
-            device=device
+            device=device,
         )
         pred += model(in_data).cpu()
 
         gc.collect()
         torch.cuda.empty_cache()
-    
+
     pred = pred.argmax(dim=1)
     return pred
 
@@ -119,13 +122,24 @@ def eval(
         num_classes=data_module.dset_val.NUM_CLASSES, compute_on_step=False
     )
     infer_fn = infer_with_rotation_average if use_rotation_average else infer
+    points = []
+    preds = []
+    labels = []
     with torch.inference_mode(mode=True):
         for batch in track(val_loader):
             pred = infer_fn(model, batch, device)
             mask = batch["labels"] != data_module.dset_val.ignore_label
             confmat(pred[mask], batch["labels"][mask])
+            points.append(batch["coordinates"])
+            preds.append(pred)
+            labels.append(batch["labels"])
             torch.cuda.empty_cache()
     confmat = confmat.compute().numpy()
+    points = torch.Tensor(points)
+    preds = torch.Tensor(preds)
+    labels = torch.Tensor(labels)
+    data = {"points": points, "preds": preds, "labels": labels}
+    torch.save(data, "./data.pt")
 
     cnames = data_module.dset_val.get_classnames()
     print_results(cnames, confmat)
@@ -136,7 +150,9 @@ if __name__ == "__main__":
     parser.add_argument("config", type=str)
     parser.add_argument("ckpt_path", type=str)
     parser.add_argument("-r", "--use_rotation_average", action="store_true")
-    parser.add_argument("-v", "--voxel_size", type=float, default=None) # overwrite voxel_size
+    parser.add_argument(
+        "-v", "--voxel_size", type=float, default=None
+    )  # overwrite voxel_size
     args = parser.parse_args()
 
     gin.parse_config_file(args.config)
