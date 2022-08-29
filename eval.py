@@ -134,6 +134,7 @@ def eval(
             pred = infer_fn(model, batch, device)
             mask = batch["labels"] != data_module.dset_val.ignore_label
             confmat(pred[mask], batch["labels"][mask])
+            print(batch["coordinates"].shape)
             points.append(batch["coordinates"])
             preds.append(pred)
             labels.append(batch["labels"])
