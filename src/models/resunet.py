@@ -1,84 +1,9 @@
 import gin
 import torch
-import torch.nn as nn
 import MinkowskiEngine as ME
+from MinkowskiEngine.modules.resnet_block import BasicBlock
 
 from src.models.resnet import ResNetBase
-
-
-class BasicBlock(nn.Module):
-    expansion = 1
-
-    def __init__(
-        self,
-        inplanes,
-        planes,
-        stride=1,
-        dilation=1,
-        downsample=None,
-        bn_momentum=0.1,
-        dimension=-1,
-    ):
-        super(BasicBlock, self).__init__()
-        assert dimension > 0
-
-        self.conv1 = ME.MinkowskiConvolution(
-            inplanes,
-            planes,
-            kernel_size=3,
-            stride=3,
-            dilation=dilation,
-            dimension=dimension,
-        )
-        self.norm1 = ME.MinkowskiBatchNorm(planes, momentum=bn_momentum)
-        self.conv2 = ME.MinkowskiConvolution(
-            planes,
-            planes,
-            kernel_size=3,
-            stride=3,
-            dilation=dilation,
-            dimension=dimension,
-        )
-        self.conv3 = ME.MinkowskiConvolution(
-            planes + inplanes + 3,
-            planes,
-            kernel_size=1,
-            stride=1,
-            dilation=dilation,
-            dimension=dimension,
-        )
-        self.pooltr = ME.MinkowskiPoolingTranspose(
-            kernel_size=3, stride=3, dimension=dimension
-        )
-        self.norm2 = ME.MinkowskiBatchNorm(planes, momentum=bn_momentum)
-        self.relu = ME.MinkowskiReLU(inplace=True)
-        self.downsample = downsample
-
-    def forward(self, x):
-        residual = x
-
-        out = self.conv1(x)
-        out = self.pooltr(out)
-        out = self.norm1(out)
-        out = self.relu(out)
-
-        out = self.conv2(out)
-        out = self.pooltr(out)
-        out = ME.SparseTensor(
-            torch.cat([out.F, out.C[:, 1:] % 3 - 1], dim=1),
-            coordinate_map_key=x.coordinate_key,
-            coordinate_manager=x.coordinate_manager,
-        )
-        out = self.conv3(ME.cat(residual, out))
-        out = self.norm2(out)
-
-        if self.downsample is not None:
-            residual = self.downsample(x)
-
-        out += residual
-        out = self.relu(out)
-
-        return out
 
 
 @gin.configurable
