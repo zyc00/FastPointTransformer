@@ -134,15 +134,11 @@ def eval(
             pred = infer_fn(model, batch, device)
             mask = batch["labels"] != data_module.dset_val.ignore_label
             confmat(pred[mask], batch["labels"][mask])
-            print(batch["coordinates"].shape)
-            points.append(batch["coordinates"])
-            preds.append(pred)
-            labels.append(batch["labels"])
+            points = batch["coordinates"]
+            preds = pred
+            labels = batch["labels"]
             torch.cuda.empty_cache()
     confmat = confmat.compute().numpy()
-    points = torch.Tensor(points)
-    preds = torch.Tensor(preds)
-    labels = torch.Tensor(labels)
     data = {"points": points, "preds": preds, "labels": labels}
     torch.save(data, "./data.pt")
 
