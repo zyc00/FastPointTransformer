@@ -126,7 +126,7 @@ def eval(
         for batch in track(val_loader):
             pred = infer_fn(model, batch, device)
             mask = batch["labels"] != data_module.dset_val.ignore_label
-            visualize_scannet_label(batch["coordinates"] * 0.05, batch["labels"])
+            visualize_scannet_label(batch["coordinates"][mask] * 0.05, pred[mask])
             confmat(pred[mask], batch["labels"][mask])
             torch.cuda.empty_cache()
     confmat = confmat.compute().numpy()
