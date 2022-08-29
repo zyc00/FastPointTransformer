@@ -12,8 +12,8 @@ import MinkowskiEngine as ME
 
 
 def homogeneous_coords(coords):
-  assert isinstance(coords, torch.Tensor) and coords.shape[1] == 3
-  return torch.cat([coords, torch.ones((len(coords), 1))], dim=1)
+    assert isinstance(coords, torch.Tensor) and coords.shape[1] == 3
+    return torch.cat([coords, torch.ones((len(coords), 1))], dim=1)
 
 
 class Compose(object):
@@ -159,7 +159,9 @@ class RandomScale(object):
 
 @gin.configurable
 class RandomCrop(object):
-    def __init__(self, x, y, z, application_ratio=1, min_cardinality=100, max_retries=10):
+    def __init__(
+        self, x, y, z, application_ratio=1, min_cardinality=100, max_retries=10
+    ):
         assert x > 0
         assert y > 0
         assert z > 0
@@ -504,9 +506,13 @@ class ChromaticAutoContrast(object):
                 scale = 255 / (hi - lo)
                 contrast_feats = (feats[:, :3] - lo) * scale
                 blend_factor = (
-                    random.random() if self.randomize_blend_factor else self.blend_factor
+                    random.random()
+                    if self.randomize_blend_factor
+                    else self.blend_factor
                 )
-                feats[:, :3] = (1 - blend_factor) * feats + blend_factor * contrast_feats
+                feats[:, :3] = (
+                    1 - blend_factor
+                ) * feats + blend_factor * contrast_feats
         return coords, feats, labels
 
 
@@ -520,7 +526,7 @@ class NormalizeColor(object):
 
     def __call__(self, coords, feats, labels):
         if self.pre_norm:
-            feats = feats / 255.
+            feats = feats / 255.0
         return coords, (feats - self.mean) / self.std, labels
 
 
