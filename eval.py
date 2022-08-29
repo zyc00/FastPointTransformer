@@ -126,7 +126,11 @@ def eval(
     preds = []
     labels = []
     with torch.inference_mode(mode=True):
+        i = 0
         for batch in track(val_loader):
+            if i > 0:
+                break
+            i = i + 1
             pred = infer_fn(model, batch, device)
             mask = batch["labels"] != data_module.dset_val.ignore_label
             confmat(pred[mask], batch["labels"][mask])
