@@ -45,12 +45,12 @@ def visualize_scannet_label(points, seg_label, color=None):
     )
     # open3d.visualization.draw_geometries([pc, mesh_frame])
     vis = open3d.visualization.Visualizer()
-    # vis.create_window()
+    vis.create_window()
     vis.add_geometry(pc)
     vis.update_geometry(pc)
     vis.poll_events()
     vis.update_renderer()
     global count
     vis.capture_screen_image(f"./vis/{count}.jpg", do_render=False)
-    # vis.destroy_window()
+    vis.destroy_window()
     count = count + 1
