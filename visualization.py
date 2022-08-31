@@ -26,8 +26,6 @@ SCANNET_COLOR_PALETTE = [
     (82, 84, 163),  # otherfurn
 ]
 
-count = 0
-
 
 def visualize_scannet_label(points, seg_label, color=None):
     pc = open3d.geometry.PointCloud()
@@ -43,14 +41,4 @@ def visualize_scannet_label(points, seg_label, color=None):
     mesh_frame = open3d.geometry.TriangleMesh.create_coordinate_frame(
         size=1.0, origin=[0, 0, 0]
     )
-    # open3d.visualization.draw_geometries([pc, mesh_frame])
-    vis = open3d.visualization.Visualizer()
-    vis.create_window(visible=False)
-    vis.add_geometry(pc)
-    vis.update_geometry(pc)
-    vis.poll_events()
-    vis.update_renderer()
-    global count
-    vis.capture_screen_image(f"./vis/{count}.jpg", do_render=False)
-    vis.destroy_window()
-    count = count + 1
+    open3d.visualization.draw_geometries([pc, mesh_frame])

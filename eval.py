@@ -36,6 +36,8 @@ def print_results(classnames, confusion_matrix):
         table.add_column(col)
     ious = ious.tolist()
     row = [macc, miou, *ious]
+    for i in range(num_classes):
+        print(f"{classnames[i]}: {row[i + 2]}")
     table.add_row(*[f"{x:.2f}" for x in row])
     console.print(table)
 
