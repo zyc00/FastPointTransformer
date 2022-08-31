@@ -130,9 +130,9 @@ def eval(
     with torch.inference_mode(mode=True):
         i = 0
         for batch in track(val_loader):
-            if i > 0:
-                break
-            i = i + 1
+            # if i > 0:
+            #     break
+            # i = i + 1
             pred = infer_fn(model, batch, device)
             mask = batch["labels"] != data_module.dset_val.ignore_label
             confmat(pred[mask], batch["labels"][mask])
@@ -141,8 +141,8 @@ def eval(
             labels = batch["labels"]
             torch.cuda.empty_cache()
     confmat = confmat.compute().numpy()
-    data = {"points": points, "preds": preds, "labels": labels}
-    torch.save(data, "./data.pt")
+    # data = {"points": points, "preds": preds, "labels": labels}
+    # torch.save(data, "./data.pt")
 
     cnames = data_module.dset_val.get_classnames()
     print_results(cnames, confmat)
